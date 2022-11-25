@@ -1,0 +1,53 @@
+body {
+  font-family: sans-serif;
+}
+#app{
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+#gamedisplay{
+  box-sizing: content-box;
+  width: 500px;
+  height: 500px;
+  background-color: antiquewhite;
+  border: 5px solid grey;
+  padding: 0;
+}
+.text{
+  color: white;
+  text-align: center;
+}
+.stick{
+  box-sizing: border-box;
+  position: relative;
+  top: 0;
+  left: 200px;
+  width: 100px;
+  height: 30px;
+  border: 3px solid black;
+  border-radius: 15px;
+  margin: 0;
+}
+#stick1{
+  background-color: darkgreen;
+}
+#stick2{
+  background-color: brown ;
+}
+#ball-zone{
+  width: 500px;
+  height: 440px;
+}
+#ball{
+  box-sizing: border-box;
+  position: relative;
+  left: 237px;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  background-color: yellow;
+  border: 3px solid black;
+  border-radius: 13px;
+}
