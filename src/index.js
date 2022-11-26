@@ -1,213 +1,340 @@
-
-window.addEventListener("load", ()=>{
-    initializeGame();
-});
-
-let stick = document.getElementsByClassName("stick");
-
-var moveStick = 100;
-
-var is_Stick_1_Turn = true;
-
 var interval_ID;
+var ball_topPos;
+var ball_leftPos;
+var stick_left;
+var score = 0;
 
-var gameStarted;
+var ball_speed;
 
+var is_game_running = false;
+var is_stick_1_turn = true;
+
+var stick = document.getElementsByClassName("stick");
 var ball = document.getElementById("ball");
 
-function initializeGame(){
+var ball_zone = document.getElementById("ball-zone");
+var ball_zone_dim = ball_zone.getBoundingClientRect();
 
-    stick[0].style.left = 200 + "px";
-    stick[1].style.left = 200 + "px";
-    // ball.style.left = 237 + "px";
-    if(is_Stick_1_Turn === true){
-        ball.style.top = 0 + "px";
-        ball.style.left = 237 + "px";
+stick[0].style.left = Math.round(ball_zone_dim.width / 2 - 50) + "px";
+stick[1].style.left = Math.round(ball_zone_dim.width / 2 - 50) + "px";
+
+var stick_left_limit = Math.round(ball_zone_dim.width - 100);
+
+ball.style.left = Math.round(ball_zone_dim.width / 2 - 10) + "px";
+ball.style.top = 0 + "px";
+
+var ball_bottom_limit = Math.round(ball_zone_dim.height - 24);
+var ball_left_limit = Math.round(ball_zone_dim.width - 20);
+
+var displace_stick_by = Math.round(ball_zone_dim.width / 10);
+
+window.addEventListener("load", () => {});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    enter_pressed();
+  }
+});
+
+function initialize_game() {
+  score = 0;
+
+  stick[0].style.left = Math.round(ball_zone_dim.width / 2 - 50) + "px";
+  stick[1].style.left = Math.round(ball_zone_dim.width / 2 - 50) + "px";
+
+  ball.style.left = Math.round(ball_zone_dim.width / 2 - 10) + "px";
+  if (is_stick_1_turn) {
+    ball.style.top = 0 + "px";
+  } else {
+    ball.style.top = ball_bottom_limit + "px";
+  }
+
+  is_game_running = false;
+}
+
+var left_btn = document.getElementById("left-btn");
+var right_btn = document.getElementById("right-btn");
+var play_btn = document.getElementById("play-btn");
+
+left_btn.onclick = a_pressed;
+right_btn.onclick = d_pressed;
+play_btn.onclick = enter_pressed;
+
+function a_pressed() {
+  if (parseInt(stick[0].style.left, 10) > 0) {
+    if (parseInt(stick[0].style.left, 10) - displace_stick_by > 0) {
+      stick[0].style.left =
+        parseInt(stick[0].style.left, 10) - displace_stick_by + "px";
+      stick[1].style.left =
+        parseInt(stick[1].style.left, 10) - displace_stick_by + "px";
+    } else {
+      stick[0].style.left = 0 + "px";
+      stick[1].style.left = 0 + "px";
     }
-    else{
-        ball.style.top = 416 + "px";
-        ball.style.left = 237 + "px";
+  }
+}
+
+function d_pressed() {
+  if (parseInt(stick[0].style.left, 10) < stick_left_limit) {
+    if (
+      parseInt(stick[0].style.left, 10) + displace_stick_by <
+      stick_left_limit
+    ) {
+      stick[0].style.left =
+        parseInt(stick[0].style.left, 10) + displace_stick_by + "px";
+      stick[1].style.left =
+        parseInt(stick[1].style.left, 10) + displace_stick_by + "px";
+    } else {
+      stick[0].style.left = stick_left_limit + "px";
+      stick[1].style.left = stick_left_limit + "px";
     }
+  }
+}
 
-    gameStarted = false;
+function enter_pressed() {
+  if (is_game_running === false) {
+    is_game_running = true;
+    start_game();
+  } else {
+    clearInterval(interval_ID);
+    initialize_game();
+  }
+}
 
-    window.addEventListener("keypress", (event)=>{
-        if(event.key === "Enter"){
-            if(gameStarted === false){
-                gameStarted = true;
-                start();
-            }
+function start_game() {
+  window.addEventListener("keypress", (event) => {
+    switch (event.key) {
+      case "a":
+        a_pressed();
+        break;
+      case "d":
+        d_pressed();
+        break;
+      default:
+        break;
+    }
+  });
+  ball_movement_starts();
+}
+
+function ball_movement_starts() {
+  if (is_stick_1_turn) {
+    bottom_right();
+  } else {
+    top_left();
+  }
+}
+
+if (ball_zone_dim.width > 400) {
+  ball_speed = 2;
+} else {
+  ball_speed = 5;
+}
+
+function bottom_right() {
+  interval_ID = setInterval(function () {
+    ball_topPos = parseInt(ball.style.top, 10);
+    ball_leftPos = parseInt(ball.style.left, 10);
+    stick_left = parseInt(stick[0].style.left, 10);
+    if (ball_topPos === ball_bottom_limit) {
+      if (
+        stick_left - 10 > ball_leftPos ||
+        stick_left + 100 + 10 < ball_leftPos
+      ) {
+        if (localStorage.getItem("maxScore") === undefined) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins and made **New High Score** : " +
+              score
+          );
+        } else if (localStorage.getItem("maxScore") < score) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins and made **New High Score** : " +
+              score
+          );
+        } else {
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins | score : " +
+              score +
+              " | High Score : " +
+              localStorage.getItem("maxScore")
+          );
         }
-    });
-}
+        is_stick_1_turn = false;
+        clearInterval(interval_ID);
+        gameEnds();
+      } else if (ball_leftPos === ball_left_limit) {
+        clearInterval(interval_ID);
+        score += 10;
+        top_left();
+      } else {
+        clearInterval(interval_ID);
+        score += 10;
+        top_right();
+      }
+    } else if (ball_leftPos === ball_left_limit) {
+      clearInterval(interval_ID);
+      bottom_left();
+    }
 
-function start(){
-    window.addEventListener("keypress", (event)=>{
-        switch(event.key){
-            case "a":
-                if(parseInt(stick[0].style.left)>0){
-                    stick[0].style.left = parseInt(stick[0].style.left) - moveStick + "px";
-                    stick[1].style.left = parseInt(stick[1].style.left) - moveStick + "px";
-                }
-                break;
-            case "d":
-                if(parseInt(stick[1].style.left)<400){
-                    stick[0].style.left = parseInt(stick[0].style.left) + moveStick + "px";
-                    stick[1].style.left = parseInt(stick[1].style.left) + moveStick + "px";
-                }
-                break;  
+    ball.style.backgroundColor = "snow";
+    ball.style.left = ball_leftPos + 1 + "px";
+    ball.style.top = ball_topPos + 1 + "px";
+  }, ball_speed);
+}
+function bottom_left() {
+  interval_ID = setInterval(function () {
+    ball_topPos = parseInt(ball.style.top, 10);
+    ball_leftPos = parseInt(ball.style.left, 10);
+    stick_left = parseInt(stick[0].style.left, 10);
+    if (ball_topPos === ball_bottom_limit) {
+      if (
+        stick_left - 10 > ball_leftPos ||
+        stick_left + 100 + 10 < ball_leftPos
+      ) {
+        if (localStorage.getItem("maxScore") === undefined) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins and made **New High Score** : " +
+              score
+          );
+        } else if (localStorage.getItem("maxScore") < score) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins and made **New High Score** : " +
+              score
+          );
+        } else {
+          window.alert(
+            "Congratulations!!!  Stick-1 Wins | score : " +
+              score +
+              " | High Score : " +
+              localStorage.getItem("maxScore")
+          );
         }
-    });
-
-    gameStarts();
-}
-
-var topPos;
-var leftPos;
-
-function gameStarts(){
-    topPos = parseInt(ball.style.top);
-    leftPos = parseInt(ball.style.left);
-
-    if(is_Stick_1_Turn === true){
-        bottomRight();
+        is_stick_1_turn = false;
+        clearInterval(interval_ID);
+        gameEnds();
+      } else if (ball_leftPos === 0) {
+        clearInterval(interval_ID);
+        score += 10;
+        top_right();
+      } else {
+        clearInterval(interval_ID);
+        score += 10;
+        top_left();
+      }
+    } else if (ball_leftPos === 0) {
+      clearInterval(interval_ID);
+      bottom_right();
     }
-    else{
-        topLeft();
+    ball.style.backgroundColor = "yellow";
+    ball.style.left = ball_leftPos - 1 + "px";
+    ball.style.top = ball_topPos + 1 + "px";
+  }, ball_speed);
+}
+function top_right() {
+  interval_ID = setInterval(function () {
+    ball_topPos = parseInt(ball.style.top, 10);
+    ball_leftPos = parseInt(ball.style.left, 10);
+    stick_left = parseInt(stick[0].style.left, 10);
+    if (ball_topPos === 0) {
+      if (
+        stick_left - 10 > ball_leftPos ||
+        stick_left + 100 + 10 < ball_leftPos
+      ) {
+        if (localStorage.getItem("maxScore") === undefined) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins and made **New High Score** : " +
+              score
+          );
+        } else if (localStorage.getItem("maxScore") < score) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins and made **New High Score** : " +
+              score
+          );
+        } else {
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins | score : " +
+              score +
+              " | High Score : " +
+              localStorage.getItem("maxScore")
+          );
+        }
+        is_stick_1_turn = true;
+        clearInterval(interval_ID);
+        gameEnds();
+      } else if (ball_leftPos === ball_left_limit) {
+        clearInterval(interval_ID);
+        score += 10;
+        bottom_left();
+      } else {
+        clearInterval(interval_ID);
+        score += 10;
+        bottom_right();
+      }
+    } else if (ball_leftPos === ball_left_limit) {
+      clearInterval(interval_ID);
+      top_left();
     }
+    ball.style.backgroundColor = "lawngreen";
+    ball.style.left = ball_leftPos + 1 + "px";
+    ball.style.top = ball_topPos - 1 + "px";
+  }, ball_speed);
+}
+function top_left() {
+  interval_ID = setInterval(function () {
+    ball_topPos = parseInt(ball.style.top, 10);
+    ball_leftPos = parseInt(ball.style.left, 10);
+    stick_left = parseInt(stick[0].style.left, 10);
+    if (ball_topPos === 0) {
+      if (
+        stick_left - 10 > ball_leftPos ||
+        stick_left + 100 + 10 < ball_leftPos
+      ) {
+        if (localStorage.getItem("maxScore") === undefined) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins and made **New High Score** : " +
+              score
+          );
+        } else if (localStorage.getItem("maxScore") < score) {
+          localStorage.setItem("maxScore", score);
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins and made **New High Score** : " +
+              score
+          );
+        } else {
+          window.alert(
+            "Congratulations!!!  Stick-2 Wins | score : " +
+              score +
+              " | High Score : " +
+              localStorage.getItem("maxScore")
+          );
+        }
+        is_stick_1_turn = true;
+        clearInterval(interval_ID);
+        gameEnds();
+      } else if (ball_leftPos === 0) {
+        clearInterval(interval_ID);
+        score += 10;
+        bottom_right();
+      } else {
+        clearInterval(interval_ID);
+        score += 10;
+        bottom_left();
+      }
+    } else if (ball_leftPos === 0) {
+      clearInterval(interval_ID);
+      top_right();
+    }
+    ball.style.backgroundColor = "pink";
+    ball.style.left = ball_leftPos - 1 + "px";
+    ball.style.top = ball_topPos - 1 + "px";
+  }, ball_speed);
 }
 
-var stick1_Left;
-var stick2_Left;
-
-function bottomRight(){
-    interval_ID = setInterval(
-        function(){
-            topPos = parseInt(ball.style.top);
-            leftPos = parseInt(ball.style.left);
-            stick2_Left = parseInt(stick[1].style.left);
-            if(topPos === 416){
-                if(stick2_Left - 13 > leftPos || stick2_Left + 100 + 13 < leftPos){
-                    window.alert("Stick-1 Wins!!!");
-                    is_Stick_1_Turn = false;
-                    clearInterval(interval_ID);
-                    gameEnds();
-                }
-                else if(leftPos === 474){
-                    clearInterval(interval_ID);
-                    topLeft();
-                }
-                else{
-                    clearInterval(interval_ID);
-                    topRight();
-                }
-            }
-            else if(leftPos === 474){
-                clearInterval(interval_ID);
-                bottomLeft();
-            }
-            ball.style.left = leftPos + 1 + "px";
-            ball.style.top = topPos + 1 + "px";
-        },2);
-}
-function bottomLeft(){
-    interval_ID = setInterval(
-        function(){
-            topPos = parseInt(ball.style.top);
-            leftPos = parseInt(ball.style.left);
-            stick2_Left = parseInt(stick[1].style.left);
-            if(topPos === 416){
-                if(stick2_Left - 13 > leftPos || stick2_Left + 100 + 13 < leftPos){
-                    window.alert("Stick-1 Wins!!!");
-                    is_Stick_1_Turn = false;
-                    clearInterval(interval_ID);
-                    gameEnds();
-                }
-                else if(leftPos === 0){
-                    clearInterval(interval_ID);
-                    topRight();
-                }
-                else{
-                    clearInterval(interval_ID);
-                    topLeft();
-                }
-            }
-            else if(leftPos === 0){
-                clearInterval(interval_ID);
-                bottomRight();
-            }
-            ball.style.left = leftPos - 1 + "px";
-            ball.style.top = topPos + 1 + "px";
-        },2);
-}
-function topRight(){
-    interval_ID = setInterval(
-        function(){
-            topPos = parseInt(ball.style.top);
-            leftPos = parseInt(ball.style.left);
-            stick1_Left = parseInt(stick[0].style.left);
-            if(topPos === 0){
-                if(stick1_Left - 13 > leftPos || stick1_Left + 100 + 13 < leftPos){
-                    window.alert("Stick-2 Wins!!!");
-                    is_Stick_1_Turn = true;
-                    clearInterval(interval_ID);
-                    gameEnds();
-                }
-                else if(leftPos === 474){
-                    clearInterval(interval_ID);
-                    bottomLeft();
-                }
-                else{
-                    clearInterval(interval_ID);
-                    bottomRight();
-                }
-            }
-            else if(leftPos === 474){
-                clearInterval(interval_ID);
-                topLeft();
-            }
-            ball.style.left = leftPos + 1 + "px";
-            ball.style.top = topPos - 1 + "px";
-        },2);
-}
-function topLeft(){
-    interval_ID = setInterval(
-        function(){
-            topPos = parseInt(ball.style.top);
-            leftPos = parseInt(ball.style.left);
-            stick1_Left = parseInt(stick[0].style.left);
-            if(topPos === 0){
-                if(stick1_Left - 13 > leftPos || stick1_Left + 100 + 13< leftPos){
-                    window.alert("Stick-2 Wins!!!");
-                    is_Stick_1_Turn = true;
-                    clearInterval(interval_ID);
-                    gameEnds();
-                }
-                else if(leftPos === 0){
-                    clearInterval(interval_ID);
-                    bottomRight();
-                }
-                else{
-                    clearInterval(interval_ID);
-                    bottomLeft();
-                }
-            }
-            else if(leftPos === 0){
-                clearInterval(interval_ID);
-                topRight();
-            }
-            ball.style.left = leftPos - 1 + "px";
-            ball.style.top = topPos - 1 + "px";
-        },2);
-}
-
-function gameEnds(){
-    initializeGame();
-}
-
-
-
-
-
-
-
+function gameEnds() {}
