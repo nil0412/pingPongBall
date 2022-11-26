@@ -2,29 +2,46 @@
 <html>
   <head>
     <title>Ping Pong Game</title>
-    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    />
     <link rel="stylesheet" href="src/styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
 
   <body>
     <div id="app">
-      <div id="gamedisplay">
-        <div id="stick1" class="stick text">
-          Stick - 1
-        </div>
-        <div id="ball-zone">
-          <div id="ball">
+      <h2>Ping Pong Ball</h2>
 
-          </div>
+      <div id="game-display">
+        <div id="stick-1" class="stick text">
+          <span>Stick - 1</span>
         </div>
-        <div id="stick2" class="stick text">
-          Stick - 2
+
+        <div id="ball-zone">
+          <div id="ball"></div>
+        </div>
+
+        <div id="stick-2" class="stick text">
+          <span>Stick - 2</span>
+        </div>
+
+        <div id="buttons">
+          <button id="left-btn">
+            <i class="fa-solid fa-circle-left"></i>
+            <i class="fa-solid fa-a"></i>
+          </button>
+          <button id="play-btn">Play</button>
+          <button id="right-btn">
+            <i class="fa-solid fa-d"></i>
+            <i class="fa-sharp fa-solid fa-circle-right"></i>
+          </button>
         </div>
       </div>
     </div>
-    <input type="text">
 
     <script src="src/index.js"></script>
   </body>
 </html>
-    
